@@ -1,5 +1,7 @@
 # TextArc
 
+image:https://travis-ci.org/lassik/textarc.svg?branch=master["Build Status", link="https://travis-ci.org/lassik/textarc"]
+
 TextArc is a new archive file format that is text-based. Unlike a zip
 or tar file, a TextArc file is just an ordinary text file. If you
 store text files in the archive, you can read their contents by

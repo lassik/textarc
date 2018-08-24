@@ -180,6 +180,7 @@ write_entry(struct textarc_entry *e)
 		printf("format textarc@2018\n");
 	}
 	assert_safe_filename(e->filename);
+	check(printf("\n"));
 	check(printf("entry %s\n", e->filename));
 	check(printf("time %04d-%02d-%02dT%02d:%02d:%02dZ\n", e->year,
 	        e->month, e->day, e->hour, e->minute, e->second));

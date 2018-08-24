@@ -154,6 +154,23 @@ assert_safe_filename(const char *filename)
 	(void)filename;
 }
 
+static void
+write_name(const char *name, const char *value)
+{
+	if (!value)
+		return;
+	assert_safe_basename(value);
+	check(printf("%s %s\n", name, value));
+}
+
+static void
+write_ulong(const char *name, unsigned long value)
+{
+	if (value == (unsigned long)-1)
+		return;
+	check(printf("%s %lu\n", name, value));
+}
+
 void
 write_entry(struct textarc_entry *e)
 {
@@ -161,21 +178,11 @@ write_entry(struct textarc_entry *e)
 	check(printf("entry %s\n", e->filename));
 	check(printf("time %04d-%02d-%02dT%02d:%02d:%02dZ\n", e->year, e->month,
 	        e->day, e->hour, e->minute, e->second));
-	if (e->mode != (unsigned long)-1)
-		check(printf("mode %lu\n", e->mode));
-	if (e->uname) {
-		assert_safe_basename(e->uname);
-		check(printf("uname %s\n", e->uname));
-	}
-	if (e->uid != (unsigned long)-1)
-		check(printf("uid %lu\n", e->uid));
-	if (e->gname) {
-		assert_safe_basename(e->gname);
-		check(printf("gname %s\n", e->gname));
-	}
-	if (e->gid != (unsigned long)-1)
-		check(printf("gid %lu\n", e->gid));
-
+	write_ulong("mode", e->mode);
+	write_name("uname", e->uname);
+	write_ulong("uid", e->uid);
+	write_name("gname", e->gname);
+	write_ulong("gid", e->gid);
 	if (!strcmp(e->type, "file")) {
 		check(printf("type file\n"));
 		emit_file_contents(e->filename);

@@ -37,11 +37,12 @@ utf8_from_wstring(const wchar_t *wstring)
 	char *utf8;
 	int nbyte; /* including null terminator */
 
-	if (!(nbyte = WideCharToMultiByte(
-	              CP_UTF8, 0, wstring, -1, 0, 0, 0, 0))) {
+	nbyte = WideCharToMultiByte(CP_UTF8, 0, wstring, -1, 0, 0, 0, 0);
+	if (!nbyte) {
 		diesys(L"charset conversion error");
 	}
-	if (!(utf8 = calloc(nbyte, 1))) {
+	utf8 = calloc(nbyte, 1);
+	if (!utf8) {
 		diesys(L"out of memory");
 	}
 	if (WideCharToMultiByte(CP_UTF8, 0, wstring, -1, utf8, nbyte, 0, 0) !=

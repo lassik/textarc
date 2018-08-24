@@ -105,7 +105,8 @@ write_file_contents(const char *filename)
 	hlen = tlen = 0;
 	crc = 0;
 	size = 0;
-	if (!(input = fopen(filename, "rb"))) {
+        input = fopen(filename, "rb");
+	if (!input) {
 		fprintf(stderr, "cannot open file %s", filename);
 		exit(1);
 	}

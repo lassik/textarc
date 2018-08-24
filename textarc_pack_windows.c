@@ -96,7 +96,7 @@ write_windows_entry(const wchar_t *filename)
 int
 wmain(int argc, wchar_t **argv)
 {
-	size_t i;
+	int i;
 
 	for (i = 1; i < argc; i++) {
 		write_windows_entry(argv[i]);

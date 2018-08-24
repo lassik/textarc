@@ -32,6 +32,7 @@ static unsigned char h[HMAX];
 static char t[TMAX + 1];
 static size_t hlen;
 static size_t tlen;
+static int anyentries;
 
 static void
 check(int rv)
@@ -174,6 +175,10 @@ write_ulong(const char *name, unsigned long value)
 void
 write_entry(struct textarc_entry *e)
 {
+	if (!anyentries) {
+		anyentries = 1;
+		printf("format textarc@2018\n");
+	}
 	assert_safe_filename(e->filename);
 	check(printf("entry %s\n", e->filename));
 	check(printf("time %04d-%02d-%02dT%02d:%02d:%02dZ\n", e->year, e->month,

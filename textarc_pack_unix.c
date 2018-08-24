@@ -107,7 +107,6 @@ main(int argc, char **argv)
 {
 	int i;
 
-	printf("format textarc@2018\n");
 	for (i = 0; i < argc; i++) {
 		dofile(argv[i]);
 	}

@@ -1,0 +1,11 @@
+sudo: false
+os:
+- linux
+- osx
+language: c
+compiler:
+- clang
+- gcc
+script:
+- ./build.sh
+- ./textarc *

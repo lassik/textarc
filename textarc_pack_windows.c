@@ -85,9 +85,9 @@ write_windows_entry(const wchar_t *filename)
 		unpack_windows_filetime(&wfd.ftLastWriteTime);
 	}
 	FindClose(handle);
-        e.mode = -1;
-        e.uid = -1;
-        e.gid = -1;
+	e.mode = -1;
+	e.uid = -1;
+	e.gid = -1;
 	write_entry(&e);
 	free((void *)e.filename);
 }

@@ -181,8 +181,8 @@ write_entry(struct textarc_entry *e)
 	}
 	assert_safe_filename(e->filename);
 	check(printf("entry %s\n", e->filename));
-	check(printf("time %04d-%02d-%02dT%02d:%02d:%02dZ\n", e->year, e->month,
-	        e->day, e->hour, e->minute, e->second));
+	check(printf("time %04d-%02d-%02dT%02d:%02d:%02dZ\n", e->year,
+	        e->month, e->day, e->hour, e->minute, e->second));
 	write_ulong("mode", e->mode);
 	write_name("uname", e->uname);
 	write_ulong("uid", e->uid);

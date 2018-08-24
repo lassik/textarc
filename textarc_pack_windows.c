@@ -74,7 +74,8 @@ write_windows_entry(const wchar_t *filename)
 	HANDLE handle;
 
 	memset(&e, 0, sizeof(e));
-	if ((handle = FindFirstFile(filename, &wfd)) == INVALID_HANDLE_VALUE) {
+	if ((handle = FindFirstFile(filename, &wfd)) ==
+	        INVALID_HANDLE_VALUE) {
 		diesys(L"FindFirstFile");
 	}
 	e.filename = utf8_from_wstring(filename);

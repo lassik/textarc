@@ -93,7 +93,8 @@ write_unix_entry(const char *filename)
 		e.link = get_symlink_target(filename);
 		break;
 	default:
-		fprintf(stderr, "cannot archive directory entry %s", filename);
+		fprintf(stderr, "cannot archive directory entry %s",
+		        filename);
 		exit(1);
 		break;
 	}

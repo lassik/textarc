@@ -1,4 +1,5 @@
 *.dSYM
+*.elc
 *.obj
 /textarc-pack
 /textarc-pack.exe

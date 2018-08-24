@@ -44,7 +44,7 @@ check(int rv)
 }
 
 static void
-emith(void)
+hwrite(void)
 {
 	size_t i;
 
@@ -56,15 +56,15 @@ emith(void)
 }
 
 static void
-pushh(int ch)
+hpush(int ch)
 {
 	if (hlen >= HMAX)
-		emith();
+		hwrite();
 	h[hlen++] = ch;
 }
 
 static void
-emitt(int endl)
+twrite(int endl)
 {
 	char *white;
 	char *p;
@@ -84,17 +84,17 @@ emitt(int endl)
 	} else {
 		check(printf(">%s\n", t));
 		for (p = white; p < t + tlen; p++)
-			pushh(*p);
+			hpush(*p);
 		*white = 0;
 		tlen = 0;
 		if (endl)
-			pushh(endl);
-		emith();
+			hpush(endl);
+		hwrite();
 	}
 }
 
 static void
-emit_file_contents(const char *filename)
+write_file_contents(const char *filename)
 {
 	FILE *input;
 	int ch;
@@ -113,26 +113,26 @@ emit_file_contents(const char *filename)
 		crc = crc32_byte(crc, ch);
 		size++;
 		if ((ch == '\n') && !hlen) {
-			emitt(ch);
+			twrite(ch);
 		} else if (isprint(ch) || (ch == '\t')) {
 			t[tlen++] = ch;
 			if (hlen && (tlen >= TMIN))
-				emith();
+				hwrite();
 			if (tlen >= TMAX)
-				emitt(0);
+				twrite(0);
 		} else {
 			if (tlen && !hlen)
-				emitt(0);
+				twrite(0);
 			for (i = 0; i < tlen; i++)
-				pushh(t[i]);
+				hpush(t[i]);
 			tlen = 0;
-			pushh(ch);
+			hpush(ch);
 		}
 	}
 	if (hlen)
-		emith();
+		hwrite();
 	if (tlen)
-		emitt(0);
+		twrite(0);
 	if (ferror(input)) {
 		fprintf(stderr, "cannot read from file %s", filename);
 		exit(1);
@@ -190,7 +190,7 @@ write_entry(struct textarc_entry *e)
 	write_ulong("gid", e->gid);
 	write_name("type", e->type);
 	if (!strcmp(e->type, "file")) {
-		emit_file_contents(e->filename);
+		write_file_contents(e->filename);
 	} else if (!strcmp(e->type, "link")) {
 		assert_safe_filename(e->link);
 		check(printf("link %s\n", e->link));

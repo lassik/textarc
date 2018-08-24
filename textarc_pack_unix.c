@@ -60,7 +60,7 @@ get_symlink_target(const char *filename)
 }
 
 static void
-dofile(const char *filename)
+write_unix_entry(const char *filename)
 {
 	struct passwd *pw;
 	struct group *gr;
@@ -109,7 +109,7 @@ main(int argc, char **argv)
 	int i;
 
 	for (i = 1; i < argc; i++) {
-		dofile(argv[i]);
+		write_unix_entry(argv[i]);
 	}
 	return 0;
 }

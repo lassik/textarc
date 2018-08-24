@@ -29,6 +29,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "crc.h"
+
 #define TMIN 20
 #define TMAX 77
 #define HMAX 32
@@ -94,13 +96,19 @@ emit_file_contents(const char *filename)
 	FILE *input;
 	int ch;
 	size_t i;
+	unsigned int crc;
+	unsigned long filesize;
 
 	hlen = tlen = 0;
+	crc = 0;
+	filesize = 0;
 	if (!(input = fopen(filename, "rb"))) {
 		fprintf(stderr, "cannot open file %s", filename);
 		exit(1);
 	}
 	while ((ch = fgetc(input)) != EOF) {
+		crc = crc32_byte(crc, ch);
+		filesize++;
 		if ((ch == '\n') && !hlen) {
 			emitt(ch);
 		} else if (isprint(ch) || (ch == '\t')) {
@@ -127,6 +135,8 @@ emit_file_contents(const char *filename)
 		exit(1);
 	}
 	fclose(input);
+	crc = crc32_done(crc, filesize);
+	printf("cksum %u\n", crc);
 }
 
 static void
@@ -188,8 +198,8 @@ dofile(const char *filename)
 	write_common_attributes(&st);
 	switch (st.st_mode & S_IFMT) {
 	case S_IFREG:
-		printf("type file\n");
 		printf("size %llu\n", (unsigned long long)st.st_size);
+		printf("type file\n");
 		emit_file_contents(filename);
 		break;
 	case S_IFDIR:

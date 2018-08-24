@@ -183,15 +183,12 @@ write_entry(struct textarc_entry *e)
 	write_ulong("uid", e->uid);
 	write_name("gname", e->gname);
 	write_ulong("gid", e->gid);
+	write_name("type", e->type);
 	if (!strcmp(e->type, "file")) {
-		check(printf("type file\n"));
 		emit_file_contents(e->filename);
 	} else if (!strcmp(e->type, "link")) {
 		assert_safe_filename(e->link);
-		check(printf("type link\n"));
 		check(printf("link %s\n", e->link));
-	} else if (!strcmp(e->type, "dir")) {
-		check(printf("type dir\n"));
 	}
 	check(printf("end entry\n"));
 }

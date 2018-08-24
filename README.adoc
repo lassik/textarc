@@ -1,0 +1,25 @@
+# TextArc
+
+TextArc is a new archive file format that is text-based. Unlike a zip
+or tar file, a TextArc file is just an ordinary text file. If you
+store text files in the archive, you can read their contents by
+opening the archive file in a text editor or web browser.
+
+* TextArc is line-oriented. It is designed to be very easy to parse
+safely and extend cleanly.
+
+* TextArc is designed to handle arbitrary binary data, Unix vs Windows
+newlines (even when mixed in the same file), long lines, missing or
+multiple final newlines, blank lines, and trailing whitespace with no
+effort from the user.
+
+* TextArc supports the usual file attributes with almost the same
+syntax as link:https://www.freebsd.org/cgi/man.cgi?query=mtree[BSD
+mtree].
+
+* TextArc does not compress files inside the archive (it would be
+silly to use text to compress data). However, it's easy to compress an
+entire archive using gzip, bzip2 or any other file compressor.
+
+TextArc was created as a clean alternative to the age-old
+link:https://www.freebsd.org/cgi/man.cgi?query=shar[shar] hack.

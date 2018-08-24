@@ -22,7 +22,7 @@ xstrdup(const char *s)
 	char *d;
 	size_t n;
 
-	n = strlen(s);
+	n = strlen(s) + 1;
 	if (!(d = malloc(n))) {
 		fprintf(stderr, "out of memory\n");
 		exit(1);

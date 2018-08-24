@@ -65,6 +65,7 @@ dofile(const char *filename)
 	struct passwd *pw;
 	struct group *gr;
 
+	memset(&e, 0, sizeof(e));
 	if (lstat(filename, &st) == -1) {
 		fprintf(stderr, "cannot stat file %s", filename);
 		exit(1);

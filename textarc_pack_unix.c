@@ -96,10 +96,10 @@ dofile(const char *filename)
 		exit(1);
 		break;
 	}
-        write_entry(&e);
-        free(e.link);
-        free(e.uname);
-        free(e.gname);
+	write_entry(&e);
+	free(e.link);
+	free(e.uname);
+	free(e.gname);
 }
 
 int

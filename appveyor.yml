@@ -1,0 +1,5 @@
+build_script:
+- call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"
+- cl textarc_pack.c textarc_pack_windows.c crc.c
+artifacts:
+- path: textarc-pack.exe

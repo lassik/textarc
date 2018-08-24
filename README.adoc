@@ -1,7 +1,6 @@
 # TextArc
 
 image:https://travis-ci.org/lassik/textarc.svg?branch=master["Linux/MacOS Build Status", link="https://travis-ci.org/lassik/textarc"]
-
 image:https://ci.appveyor.com/api/projects/status/37hnl4cd697j3olj/branch/master?svg=true["Windows Build Status", link="https://ci.appveyor.com/project/lassik/textarc"]
 
 TextArc is a new archive file format that is text-based. Unlike a zip

@@ -16,20 +16,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <sys/types.h>
-
-#include <sys/stat.h>
-
 #include <ctype.h>
-#include <grp.h>
-#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <unistd.h>
 
 #include "crc.h"
+#include "textarc.h"
 
 #define TMIN 20
 #define TMAX 77
@@ -41,14 +34,23 @@ static size_t hlen;
 static size_t tlen;
 
 static void
+check(int rv)
+{
+	if (rv < 0) {
+		fprintf(stderr, "cannot write output file\n");
+		exit(1);
+	}
+}
+
+static void
 emith(void)
 {
 	size_t i;
 
-	printf("$");
+	check(printf("$"));
 	for (i = 0; i < hlen; i++)
-		printf("%02x", (unsigned int)h[i]);
-	printf("\n");
+		check(printf("%02x", (unsigned int)h[i]));
+	check(printf("\n"));
 	hlen = 0;
 }
 
@@ -72,14 +74,14 @@ emitt(int endl)
 	if (white == t + tlen) {
 		*white = 0;
 		if (endl == '\n') {
-			printf(":%s\n", t);
+			check(printf(":%s\n", t));
 		} else {
 			// assert null endl
-			printf(">%s\n", t);
+			check(printf(">%s\n", t));
 		}
 		tlen = 0;
 	} else {
-		printf(">%s\n", t);
+		check(printf(">%s\n", t));
 		for (p = white; p < t + tlen; p++)
 			pushh(*p);
 		*white = 0;
@@ -97,18 +99,18 @@ emit_file_contents(const char *filename)
 	int ch;
 	size_t i;
 	unsigned int crc;
-	unsigned long filesize;
+	unsigned long size;
 
 	hlen = tlen = 0;
 	crc = 0;
-	filesize = 0;
+	size = 0;
 	if (!(input = fopen(filename, "rb"))) {
 		fprintf(stderr, "cannot open file %s", filename);
 		exit(1);
 	}
 	while ((ch = fgetc(input)) != EOF) {
 		crc = crc32_byte(crc, ch);
-		filesize++;
+		size++;
 		if ((ch == '\n') && !hlen) {
 			emitt(ch);
 		} else if (isprint(ch) || (ch == '\t')) {
@@ -135,8 +137,15 @@ emit_file_contents(const char *filename)
 		exit(1);
 	}
 	fclose(input);
-	crc = crc32_done(crc, filesize);
-	printf("cksum %u\n", crc);
+	crc = crc32_done(crc, size);
+	check(printf("size %lu\n", size));
+	check(printf("cksum %u\n", crc));
+}
+
+static void
+assert_safe_basename(const char *s)
+{
+	(void)s;
 }
 
 static void
@@ -145,86 +154,37 @@ assert_safe_filename(const char *filename)
 	(void)filename;
 }
 
-static void
-write_common_attributes(struct stat *st)
+void
+write_entry(struct textarc_entry *e)
 {
-	static char buf[128];
-	time_t tim;
-	struct passwd *pw;
-	struct group *gr;
-
-	tim = st->st_mtime;
-	strftime(buf, sizeof(buf), "%FT%TZ", gmtime(&tim));
-	printf("time %s\n", buf);
-	if ((pw = getpwuid(st->st_uid))) {
-		printf("uname %s\n", pw->pw_name);
-	} else {
-		printf("uid %lu\n", (unsigned long)st->st_uid);
+	assert_safe_filename(e->filename);
+	check(printf("entry %s\n", e->filename));
+	check(printf("time %04d-%02d-%02dT%02d:%02d:%02dZ\n", e->year, e->month,
+	        e->day, e->hour, e->minute, e->second));
+	if (e->mode != (unsigned long)-1)
+		check(printf("mode %lu\n", e->mode));
+	if (e->uname) {
+		assert_safe_basename(e->uname);
+		check(printf("uname %s\n", e->uname));
 	}
-	if ((gr = getgrgid(st->st_gid))) {
-		printf("gname %s\n", gr->gr_name);
-	} else {
-		printf("gid %lu\n", (unsigned long)st->st_gid);
+	if (e->uid != (unsigned long)-1)
+		check(printf("uid %lu\n", e->uid));
+	if (e->gname) {
+		assert_safe_basename(e->gname);
+		check(printf("gname %s\n", e->gname));
 	}
-	printf("mode %lu\n", (unsigned long)st->st_mode);
-}
+	if (e->gid != (unsigned long)-1)
+		check(printf("gid %lu\n", e->gid));
 
-static void
-write_link_attribute(const char *filename)
-{
-	static char buf[128];
-	ssize_t len;
-
-	if ((len = readlink(filename, buf, sizeof(buf))) == (ssize_t)-1) {
-		fprintf(stderr, "cannot readlink %s", filename);
-		exit(1);
+	if (!strcmp(e->type, "file")) {
+		check(printf("type file\n"));
+		emit_file_contents(e->filename);
+	} else if (!strcmp(e->type, "link")) {
+		assert_safe_filename(e->link);
+		check(printf("type link\n"));
+		check(printf("link %s\n", e->link));
+	} else if (!strcmp(e->type, "dir")) {
+		check(printf("type dir\n"));
 	}
-	buf[(size_t)len] = 0;
-	assert_safe_filename(buf);
-	printf("link %s\n", buf);
-}
-
-static void
-dofile(const char *filename)
-{
-	static struct stat st;
-
-	assert_safe_filename(filename);
-	if (lstat(filename, &st) == -1) {
-		fprintf(stderr, "cannot stat file %s", filename);
-		exit(1);
-	}
-	printf("entry %s\n", filename);
-	write_common_attributes(&st);
-	switch (st.st_mode & S_IFMT) {
-	case S_IFREG:
-		printf("size %llu\n", (unsigned long long)st.st_size);
-		printf("type file\n");
-		emit_file_contents(filename);
-		break;
-	case S_IFDIR:
-		printf("type dir\n");
-		break;
-	case S_IFLNK:
-		printf("type link\n");
-		write_link_attribute(filename);
-		break;
-	default:
-		fprintf(stderr, "cannot archive directory entry %s", filename);
-		exit(1);
-		break;
-	}
-	printf("end entry\n");
-}
-
-int
-main(int argc, char **argv)
-{
-	int i;
-
-	printf("format textarc@2018\n");
-	for (i = 0; i < argc; i++) {
-		dofile(argv[i]);
-	}
-	return 0;
+	check(printf("end entry\n"));
 }

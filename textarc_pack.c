@@ -168,9 +168,15 @@ write_name(const char *name, const char *value)
 static void
 write_ulong(const char *name, unsigned long value)
 {
-	if (value == (unsigned long)-1)
-		return;
-	check(printf("%s %lu\n", name, value));
+	if (value != (unsigned long)-1)
+		check(printf("%s %lu\n", name, value));
+}
+
+static void
+write_ulong_octal(const char *name, unsigned long value)
+{
+	if (value != (unsigned long)-1)
+		check(printf("%s %lo\n", name, value));
 }
 
 void
@@ -185,7 +191,7 @@ write_entry(struct textarc_entry *e)
 	check(printf("entry %s\n", e->filename));
 	check(printf("time %04d-%02d-%02dT%02d:%02d:%02dZ\n", e->year,
 	        e->month, e->day, e->hour, e->minute, e->second));
-	write_ulong("mode", e->mode);
+	write_ulong_octal("mode", e->mode);
 	write_name("uname", e->uname);
 	write_ulong("uid", e->uid);
 	write_name("gname", e->gname);

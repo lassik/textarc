@@ -72,7 +72,7 @@ write_unix_entry(const char *filename)
 	}
 	e.filename = filename;
 	unpack_unix_filetime(st.st_mtime);
-	e.mode = st.st_mode;
+	e.mode = st.st_mode & ~S_IFMT;
 	e.uid = st.st_uid;
 	e.gid = st.st_gid;
 	if ((pw = getpwuid(st.st_uid))) {
